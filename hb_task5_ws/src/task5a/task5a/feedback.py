@@ -27,9 +27,12 @@ class Publisher(Node):
     def __init__(self):
         super().__init__('Penposepub')
         self.image_subcriber = self.create_subscription(Image, "/image_rect_color", self.image_callback, 10)
-        self.aruco_pose_pub_1 = self.create_publisher(Pose2D, "/pen1_pose", 10)
-        self.aruco_pose_pub_2 = self.create_publisher(Pose2D, "/pen2_pose", 10)
-        self.aruco_pose_pub_3 = self.create_publisher(Pose2D, "/pen3_pose", 10)
+        self.aruco_pose_pub_1 = self.create_publisher(Pose2D, "/pen11_pose", 10)
+        self.aruco_pose_pub_2 = self.create_publisher(Pose2D, "/pen22_pose", 10)
+        self.aruco_pose_pub_3 = self.create_publisher(Pose2D, "/pen33_pose", 10)
+        self.aruco_pose_pub_1_eval = self.create_publisher(Pose2D, "/pen1_pose", 10)
+        self.aruco_pose_pub_2_eval = self.create_publisher(Pose2D, "/pen2_pose", 10)
+        self.aruco_pose_pub_3_eval = self.create_publisher(Pose2D, "/pen3_pose", 10)
         self.cv_bridge = CvBridge()
         self.marker_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_1000)
         self.param_markers = aruco.DetectorParameters()
@@ -216,10 +219,10 @@ class Publisher(Node):
             # cornerr1 = np.float32([[xr11, yr11], [xr22, yr22],
             #                     [xr44, yr44], [xr33, yr33]])
                 
-            cornerr1 = np.float32([[78, 3], [464, 34],
-                                [76, 406], [461, 388]])
+            cornerr1 = np.float32([[99, 23], [480, 40],
+                                [95, 412], [479, 402]])
             transformed_pers_img = self.transform_img(cv_image, cornerr1)
-            # print(xr44, yr44)
+            print(xr11, yr11)
 
             self.corners1, self.ids1, rejected1 = self.detector1.detectMarkers(transformed_pers_img)
             cv.aruco.drawDetectedMarkers(transformed_pers_img, self.corners1, self.ids1)
@@ -370,8 +373,8 @@ class Publisher(Node):
 
             
 
-            dx = 0
-            dy = 26.13
+            dx = 2.5
+            dy = 25.45
 
             # pen1_pose_x = (self.pen_pose_point(bot1_x, bot1_y ,dx,dy,bot1_theta))[0]
             # pen1_pose_y = (self.pen_pose_point(bot1_x, bot1_y ,dx,dy,bot1_theta))[1]
@@ -394,6 +397,11 @@ class Publisher(Node):
             pen1_pos.y = pen1_pose_y
             pen1_pos.theta = bot1_theta
             self.aruco_pose_pub_1.publish(pen1_pos)
+            pen11_pos = Pose2D()
+            pen11_pos.x = pen1_pose_x
+            pen11_pos.y = pen1_pose_y
+            pen11_pos.theta = (bot1_theta*math.pi)/180
+            self.aruco_pose_pub_1_eval.publish(pen11_pos)
 
 
             pen2_pos = Pose2D()
@@ -401,13 +409,22 @@ class Publisher(Node):
             pen2_pos.y = pen2_pose_y
             pen2_pos.theta = bot2_theta
             self.aruco_pose_pub_2.publish(pen2_pos)
-
+            pen22_pos = Pose2D()
+            pen22_pos.x = pen2_pose_x
+            pen22_pos.y = pen2_pose_y
+            pen22_pos.theta = (bot2_theta*math.pi)/180
+            self.aruco_pose_pub_2_eval.publish(pen22_pos)
 
             pen3_pos = Pose2D()
             pen3_pos.x = pen3_pose_x
             pen3_pos.y = pen3_pose_y
             pen3_pos.theta = bot3_theta
             self.aruco_pose_pub_3.publish(pen3_pos)
+            pen33_pos = Pose2D()
+            pen33_pos.x = pen3_pose_x
+            pen33_pos.y = pen3_pose_y
+            pen33_pos.theta = (bot3_theta*math.pi)/180
+            self.aruco_pose_pub_3_eval.publish(pen33_pos)
 
             if len(bot1_prev)>=max_length:
                 bot1_prev.pop(0)
