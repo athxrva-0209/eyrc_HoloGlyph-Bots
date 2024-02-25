@@ -1,3 +1,13 @@
+'''
+* Team Id : eYRC#HB#3230
+* Author List : Atharva Wadnere,Shrikar Dongre,Amey Jawale
+* Filename:controller_1.py
+* Theme: Hologlyph Bots (HB).
+* Functions: bot1_callback(),bot2_callback(),bot3_callback(),pen1down_cb(),pen2down_cb(),pen3down_cb(),reset_serv(),rot_pts()
+* Global Variables: bot1_index ,bot2_index ,bot3_index ,bot1_prev_index ,bot2_prev_index ,bot3_prev_index, stop1_flag ,stop2_flag,stop3_flag ,last_err_x ,last_err_y 
+
+'''
+
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
@@ -9,11 +19,8 @@ from std_srvs.srv import Empty
 t1 = np.linspace((2*np.pi)/3, (4*np.pi)/3, 50)
 x1 = (220*np.cos(4*t1)*np.cos(t1)) + (250 - 2.5)
 y1 = (-220*np.cos(4*t1)*np.sin(t1)) + (250 - 25.45) + 15
-# x1 = 100*np.cos(t1) + (250 - 2.5)
-# y1 = 100*np.sin(t1) + (250 - 25.45)
-# pose1_x = 0 
-# pose1_y = 0
-# pose1_theta = 0
+
+#Initialising 0 value to required variables.
 bot1_index = 0
 bot2_index = 0
 bot3_index = 0
@@ -39,12 +46,8 @@ class Controller(Node):
         self.bot3_pen_sub = self.create_subscription(Bool, "/pen3_down", self.pen3down_cb, 10)
 
         self.bot1_pub = self.create_publisher(Twist, "/bot2_vel", 10)
-        # self.bot2_flag_pub = self.create_publisher(Bool, "/bot2_flag", 10)
-        # self.bot2_pub = self.create_publisher(Twist, "/bot2_vel", 10)
-        # self.bot3_pub = self.create_publisher(Twist, "/bot1_vel", 10)
         self.bot1_pen_pub = self.create_publisher(Bool, "/pen2_down", 10)
-        # self.bot2_pen_pub = self.create_publisher(Bool, "/pen2_down", 10)
-        # self.bot3_pen_pub = self.create_publisher(Bool, "/pen3_down", 10)
+
         self.pose1_theta = 0
         self.pose1_x = 0
         self.pose1_y = 0
@@ -61,7 +64,7 @@ class Controller(Node):
         self.pen2 = 0
         self.pen3 = 0
 
-
+    # Defining callback functions.
     def bot1_callback(self, msg):
         # global pose1_x, pose1_y, pose1_theta
         self.pose1_x = msg.x
@@ -90,7 +93,7 @@ class Controller(Node):
         self.pen3 = data.data
 
     
-
+    # Defining a function to call reset service.
     def reset_serv(self):
        client2 = self.create_client(Empty, "/Stop_Flag")
        while not client2.wait_for_service(1.0):
@@ -98,6 +101,15 @@ class Controller(Node):
        request = Empty.Request()
        client2.call_async(request)
 
+# Defining a function to rotate points.
+'''
+* Function Name:rot_pts()
+* Input: Coordinates to be rotated.
+* Output:Rotated Coordinates.
+* Logic:Points get rotated in required frame.
+*
+* Example Call: rot_pts(vel_x, vel_y, pose1_theta)
+'''
 def rot_pts(x,y,angle):
         angle_r = (angle*math.pi)/180
         c = np.cos(angle_r)
@@ -113,6 +125,16 @@ def rot_pts(x,y,angle):
 
         return rotated_x, rotated_y
 
+# Defining function to calculate inverse kinematics velocities.
+'''
+* Function Name:inverse_kinematics()
+* Input: Takes input the rotated error velocities, both linear and angular.
+* Output: Gives Output the velocity for each wheel.
+* Logic: the product of vel matrix and cal matrix (which is bot specific) gives matrix generating inverse velocities.
+*
+* Example Call:inverse_kinematics(new_vel_x, new_vel_y, -(err_theta))
+'''
+
 def inverse_kinematics(rotated_x, rotated_y, theta_r):
         r = 4.318 
         d = 25.00 
@@ -125,29 +147,8 @@ def inverse_kinematics(rotated_x, rotated_y, theta_r):
                             [-d, -0.5, np.sin(np.pi/3) + 0.0]])
                 
         inv_vel = (np.dot(cal_mat, vel))/r
-        # v1 = inv_vel[0]
-        # v2 = inv_vel[1]
-        # v3 = inv_vel[2]
         return inv_vel
 
-# def pen_pose_point(xc,yc,x,y,angle_d):
-#   # angle = (angle_d*math.pi)/180
-#   angle = angle_d
-#   c = np.cos(angle)
-#   s = np.sin(angle)
-
-#   rot_mat = np.array([[c, -s], 
-#                       [s, c]])
-#   pts_to_be_rot = np.array([[x],
-#                             [-y]])
-#   pts_rotated = np.dot(rot_mat, pts_to_be_rot)
-#   rotated_x = (pts_rotated[0])[0]
-#   rotated_y = (pts_rotated[1])[0]
-
-#   penpose_x = xc + rotated_x
-#   penpose_y = yc - rotated_y
-
-#   return penpose_x, penpose_y
 
 
 def main(args=None):
@@ -155,29 +156,14 @@ def main(args=None):
 
     # Create an instance of the EbotController class
     con = Controller()
-   
-    # Send an initial request with the index from ebot_controller.index
-    # con.send_request(con.index)
     
     # Main loop
     while (1):
-
-        # cx1 = con.pose2_x - con.pose1_x
-        # cy1 = con.pose2_y - con.pose1_y
-        # co_dist_1 = math.sqrt(cx1**2 + cy1**2)
-        # cx2 = con.pose3_x - con.pose1_x
-        # cy2 = con.pose3_y - con.pose1_y
-        # co_dist_2 = math.sqrt(cx2**2 + cy2**2)
-        # if co_dist_1 < 160 or co_dist_2 < 160:
-        #     bot1 = Twist()
-        #     bot1.linear.x = 90.0
-        #     bot1.linear.y = 90.0
-        #     bot1.linear.z = 90.0
-        #     con.bot1_pub.publish(bot1)
-        # else:
+         #Calculating Distance between Bot3 and Bot1
         cx2 = con.pose2_x - con.pose1_x
         cy2 = con.pose2_y - con.pose1_y
         co_dist_2 = math.sqrt(cx2**2 + cy2**2)
+        # Algorithm to avoid Collision.
         if co_dist_2 < 110:
             bot1 = Twist()
             bot1.linear.x = 90.0
@@ -186,6 +172,7 @@ def main(args=None):
             con.bot1_pub.publish(bot1)
         else:
     #########################################################################################################################
+            #Initialising constants.
             kd = 0.00006
             kp_ang = 1.5
             global bot1_index, bot1_prev_index, bot1_index, stop1_flag, stop2_flag, stop3_flag, last_err_x, last_err_y
@@ -193,10 +180,10 @@ def main(args=None):
             goal_y = (y1[bot1_index])
             goal_theta = 0
             pose1_theta = con.pose1_theta
+            # Stating the orientation of bot.
             if pose1_theta > 180:
                 pose1_theta = pose1_theta - 360
-            # goal_x = pen_pose_point(goal_x, goal_y, 2.5, 25.45, pose1_theta)[0]
-            # goal_y = pen_pose_point(goal_x, goal_y, 2.5, 25.45, pose1_theta)[1]
+         
             vel_x = goal_x - con.pose1_x
             vel_y = goal_y - con.pose1_y
             err_theta = (goal_theta - pose1_theta)
@@ -204,11 +191,12 @@ def main(args=None):
             err_y = goal_y - con.pose1_y
             diff_x = err_x - last_err_x
             diff_y = err_y - last_err_y
-            # print(err_theta)
+        
 
             new_vel_x = (rot_pts(vel_x, vel_y, pose1_theta))[0] +kd*diff_x
             new_vel_y = (rot_pts(vel_x, vel_y, pose1_theta))[1] +kd*diff_y
-
+            
+            #Accessing inverse kinematics velocities.
             v11 = (((inverse_kinematics(new_vel_x, new_vel_y, -(err_theta)*kp_ang)[0])[0]))
             v22 = (((inverse_kinematics(new_vel_x, new_vel_y, -(err_theta)*kp_ang)[1])[0]))
             v33 = (((inverse_kinematics(new_vel_x, new_vel_y, -(err_theta)*kp_ang)[2])[0]))
@@ -217,21 +205,7 @@ def main(args=None):
             v3 = v33*1.5 + 90 
             print (v1, v2, v3)
 
-            # if v1 < 98 and v1 > 91:
-            #     v1 = 98
-            # elif v1 > 87 and v1 < 89:
-            #     v1 = 87
-
-            # if v2 < 97 and v2 > 91:
-            #     v2 = 98
-            # elif v2 > 86 and v2 < 89:
-            #     v2 = 87
-
-            # if v3 < 98 and v3 > 91:
-            #     v3 = 98
-            # elif v3 > 87 and v3 < 89:
-            #     v3 = 87
-
+            # Publishing appropriate bot velocities based on conditions.
             distance = math.sqrt(vel_x**2 + vel_y**2) 
             stop_threshold = 20.0
             if distance > stop_threshold:
