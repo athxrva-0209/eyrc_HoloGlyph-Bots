@@ -1,3 +1,13 @@
+'''
+* Team Id : eYRC#HB#3230
+* Author List : Atharva Wadnere,Shrikar Dongre,Amey Jawale
+* Filename:feedback.py
+* Theme: Hologlyph Bots (HB).
+* Functions:image_callback() ,display_image(),transform_img().
+        
+* Global Variables: Declared Below
+
+'''
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
@@ -11,6 +21,7 @@ import cv2 as cv
 from std_msgs.msg import Int32
 from sensor_msgs.msg import Image
 
+#Global Variables.
 bot1_prev = [[[[0],[0]],[[0],[0]],[[0],[0]],[[0],[0]]]]
 bot2_prev = [[[[0],[0]],[[0],[0]],[[0],[0]],[[0],[0]]]]
 bot3_prev = [[[[0],[0]],[[0],[0]],[[0],[0]],[[0],[0]]]]
@@ -54,14 +65,14 @@ class Publisher(Node):
         self.aruco_pose_pub_1_eval = self.create_publisher(Pose2D, "/pen1_pose", 10)
         self.aruco_pose_pub_2_eval = self.create_publisher(Pose2D, "/pen2_pose", 10)
         self.aruco_pose_pub_3_eval = self.create_publisher(Pose2D, "/pen3_pose", 10)
-        # self.aruco_pose_pub_3_evaluuuu = self.create_publisher(Pose2D, "n3_pose", 10)
+        #Acccessing functions to detect aruco markers.
         self.cv_bridge = CvBridge()
         self.marker_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_1000)
         self.param_markers = aruco.DetectorParameters()
         self.detector = cv.aruco.ArucoDetector(self.marker_dict, self.param_markers)
         self.detector1 = cv.aruco.ArucoDetector(self.marker_dict, self.param_markers)
-        # timer_period = 0.5  # seconds
-        # self.timer = self.create_timer(timer_period, self.timer_callback)
+        
+
         
 
     def image_callback(self, msg):
@@ -72,15 +83,16 @@ class Publisher(Node):
         self.display_image(cv_image, "org_img")
         # print(self.ids)
 
+        #Initialising Bot ids :
         bot1_marker_id = 1
         bot2_marker_id = 2
         bot3_marker_id = 3  
-
+        #Initialising Reference marker ids :
         ref1_marker_id = 8
         ref2_marker_id = 10
         ref3_marker_id = 12
         ref4_marker_id = 4 
-
+        #Feeding Garbage values to start the code if no detection takes place initially.
         bot1_corners = [[[0.1,0],[0.1,0],[0.11,0],[0.1,0]]]
         bot2_corners = [[[0.2,0],[0.2,0],[0.21,0],[0.2,0]]]
         bot3_corners = [[[0.3,0],[0.3,0],[0.31,0],[0.3,0]]]
@@ -91,7 +103,7 @@ class Publisher(Node):
         ref4_corners = [[[0.3,0.3],[0.5,0],[0.51,0],[0,500]]]
 
 
-
+        # Creating list for individual bot markers.
         if self.ids is not None:
             for i in range(len(self.ids)):
                 if self.ids[i] == bot1_marker_id:
@@ -108,6 +120,7 @@ class Publisher(Node):
                     bot3_corners = self.corners[i]
                     bot3_prev.append(bot3_corners)
 
+            #creating list for corners of each refernece marker.
             for i in range(len(self.ids)):
                 if self.ids[i] == ref1_marker_id:
                     ref1_corners = self.corners[i]
@@ -127,7 +140,8 @@ class Publisher(Node):
                 if self.ids[i] == ref4_marker_id:
                     ref4_corners = self.corners[i]
                     ref4_prev.append(ref4_corners)
-
+                    
+            # Designing a code to prevent corners from taking garbage value in case if detection does not take place --CODE 1
             if bot1_corners is not None:
                 
                 x11 = ((bot1_corners[0])[0])[0]
@@ -237,7 +251,10 @@ class Publisher(Node):
                         ref4_corners = element
                 xr44 = ((ref4_corners[0])[3])[0]
                 yr44 = ((ref4_corners[0])[3])[1]
-            
+
+            # Code to generate transformed image .
+            ###################################################################################################
+        
             # cornerr1 = np.float32([[xr11, yr11], [xr22, yr22],
             #                     [xr44, yr44], [xr33, yr33]])
                 
@@ -245,19 +262,16 @@ class Publisher(Node):
                                 [144, 375], [469, 388]])
             transformed_pers_img = self.transform_img(cv_image, cornerr1)
             # print(xr33, yr33)
-
+           ####################################################################################################
             self.corners1, self.ids1, rejected1 = self.detector1.detectMarkers(transformed_pers_img)
             cv.aruco.drawDetectedMarkers(transformed_pers_img, self.corners1, self.ids1)
             self.display_image(transformed_pers_img, "transformed_image")
             # print(self.ids1)
 
-            # nbot1_corners = [[[0.1,0.2],[0.3,0.4],[0.5,0.6],[0.7,0.8]]]
-            # nbot2_corners = [[[0.2,0.3],[0.4,0.5],[0.21,0.6],[0.7,0.8]]]
-            # nbot3_corners = [[[0.3,0.4],[0.5,0.6],[0.7,0.8],[0.9,0.123]]]
             global nbot1_corners, nbot2_corners, nbot3_corners, nx11, ny11, nx12, ny12, nx13, ny13, nx21, ny21, nx22, ny22, nx23, ny23, nx31, ny31, nx32, ny32, nx33, ny33
 
 
-
+            # Repeating the CODE 1 in new transformed frame.
             if self.ids1 is not None:
                 for i in range(len(self.ids1)):
                     if self.ids1[i] == bot1_marker_id:
@@ -355,11 +369,9 @@ class Publisher(Node):
             m_bot2_j = (ny22-ny21)
             m_bot3_i = (nx32-nx31)
             m_bot3_j = (ny32-ny31)
-            # print(m_bot3_i)
-            # m_bot2 = (ny23-ny21)/(nx23-nx21)
-            # m_bot3 = (ny33-ny31)/(nx33-nx31)
 
-            # bot1_theta = math.acos(((m_ref_i*m_bot1_i)+(m_ref_j*m_bot1_j))/(math.sqrt((m_ref_i**2 + m_ref_j**2)*(m_bot1_i**2 + m_bot1_j**2))))
+            ################################################################################################################################################
+            #checking orientation of each bot
             bot1_theta = math.degrees(math.acos(((m_ref_i*m_bot1_i)+(m_ref_j*m_bot1_j))/(math.sqrt((m_ref_i**2 + m_ref_j**2)*(m_bot1_i**2 + m_bot1_j**2)))))
             if m_bot1_j < 0:
                 bot1_theta = 360-bot1_theta
@@ -371,14 +383,11 @@ class Publisher(Node):
             bot3_theta = math.degrees(math.acos(((m_ref_i*m_bot3_i)+(m_ref_j*m_bot3_j))/(math.sqrt((m_ref_i**2 + m_ref_j**2)*(m_bot3_i**2 + m_bot3_j**2)))))
             if m_bot3_j < 0:
                 bot3_theta = 360-bot3_theta
-            
+         ###############################################################################################################################################################3   
 
-            # bot1_theta = math.atan((m_bot1-m_ref)/(1+(m_bot1*m_ref)))
-            # bot2_theta = math.atan((m_bot2-m_ref)/(1+(m_bot2*m_ref)))
-            # bot3_theta = math.atan((m_bot3-m_ref)/(1+(m_bot3*m_ref)))
 
             
-
+            # offsets in pen positions with respect to centre.
             dx = 2.5
             dy = 25.45
 
@@ -398,7 +407,8 @@ class Publisher(Node):
             pen3_pose_x = bot3_x
             pen3_pose_y = bot3_y
     
-
+            #Publishing pen pose 
+            
             pen1_pos = Pose2D()
             pen1_pos.x = pen1_pose_x
             pen1_pos.y = pen1_pose_y
@@ -433,6 +443,7 @@ class Publisher(Node):
             pen33_pos.theta = (bot3_theta*math.pi)/180
             self.aruco_pose_pub_3_eval.publish(pen33_pos)
 
+            # Code to limit the number of elements for ideal functioning of hardware counterparts.
             if len(bot1_prev)>=max_length:
                 bot1_prev.pop(0)
             if len(bot2_prev)>=max_length:
@@ -454,25 +465,6 @@ class Publisher(Node):
             if len(ref4_prev)>=max_length:
                 ref4_prev.pop(0)
             
-            
-            
-                
-
-    # def get_corners(self, ids, corners, bot_marker_id):
-    #     for i in range(len(ids)):
-    #         if ids[i] == bot_marker_id:
-    #             bot_corners = corners[i]
-    #             # bot1_prev.append(bot_corners)
-    #     return bot_corners
-    
-    # def get_x1_y1_x3_y3(self, bot_corners):
-    #     x1 = ((bot_corners[0])[0])[0]
-    #     y1 = ((bot_corners[0])[0])[1]
-    #     x3 = ((bot_corners[0])[2])[0]
-    #     y3 = ((bot_corners[0])[2])[1]
-    #     return x1,y1,x3,y3
-
-
 
 
     def pen_pose_point(self,xc,yc,x,y,angle_d):
@@ -493,11 +485,25 @@ class Publisher(Node):
 
         return penpose_x, penpose_y
 
+'''
+* Function Name:display_image
+* Input: Image to be displayed, name of image to be shown.
+* Output: Desired image.
+* Example Call :  self.display_image(cv_image, "org_img")
+'''
 
     def display_image(self, cv_image, name):
         cv.imshow(name, cv_image)
         cv.waitKey(1)
-        
+    '''
+* Function Name:transform_img.
+* Input: Frame to be rotated.
+* Output:transformed image.
+* Logic:syntax only
+*
+* Example Call:  transformed_pers_img = self.transform_img(cv_image, cornerr1) .
+'''
+
     def transform_img(self, input_frame, corner1):
         
         pts2 = np.float32([[0, 0], [500, 0],
