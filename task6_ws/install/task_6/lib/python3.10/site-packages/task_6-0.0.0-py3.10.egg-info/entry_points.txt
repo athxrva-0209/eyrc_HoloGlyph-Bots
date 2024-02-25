@@ -1,0 +1,6 @@
+[console_scripts]
+controller_1 = task_6.controller_1:main
+controller_2 = task_6.controller_2:main
+controller_3 = task_6.controller_3:main
+feedback = task_6.feedback:main
+
