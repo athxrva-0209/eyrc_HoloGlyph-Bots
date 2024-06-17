@@ -46,8 +46,8 @@ The specific Lissajous curve for used is :
 
 ## Contributors
 - [Atharva Wadnere](https://github.com/athxrva-0209)
+- [Shrikar Dongre](https://github.com/shrikardongre)
 - Amey Jawale
-- Shrikar Dongre
 - Sharayu Mane
 
 
