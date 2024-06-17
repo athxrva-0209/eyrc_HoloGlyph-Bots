@@ -44,6 +44,20 @@ The specific Lissajous curve for used is :
 
 <img src="https://github.com/athxrva-0209/eyrc_HoloGlyph-Bots/assets/158272880/f46bbbbd-a07b-4800-bf72-c39a1db894b4" alt="Function Mode" height="400">
 
+## Designed Bot
+Material used for fabrication of this structure was 3mm thick transparent acrylic sheets which was laser cut and put together to form this arrangement 
+![hb_task_3a_3230](https://github.com/athxrva-0209/eyrc_HoloGlyph-Bots/assets/158272880/0b20d09b-8e17-4424-82ea-117d4a639ddc)
+
+### Basic info about bots
+Components used for hologlyph bots:
+- [USB camera](https://tinyurl.com/e-camera)
+- [Esp32](http://tiny.cc/e-esp32)
+- [Omni wheel (38mm)](https://tinyurl.com/e-omni-wheel)
+- [MG995 360 continous servo](https://tinyurl.com/e-servo)
+- [MG90S microservo](https://tinyurl.com/e-servo-180)
+- [Orange 2200 mah LiPo Battery](https://tinyurl.com/58uftjb4)
+- [Buck converter XL4015](https://tinyurl.com/hp4rmcey)
+
 ## Contributors
 - [Atharva Wadnere](https://github.com/athxrva-0209)
 - [Shrikar Dongre](https://github.com/shrikardongre)
