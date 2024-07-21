@@ -61,7 +61,7 @@ Components used for hologlyph bots:
 ## Contributors
 - [Atharva Wadnere](https://github.com/athxrva-0209)
 - [Shrikar Dongre](https://github.com/shrikardongre)
-- Amey Jawale
+- [Amey Jawale](https://github.com/ameyjawale)
 - Sharayu Mane
 
 
