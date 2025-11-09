@@ -1,6 +1,6 @@
 # Hologlyph Bots (e-yrc 2023-24)
 
-Designing and implementing holonomic drive based robot and its control system using ROS2 and Python. Learning about holonomic drive, inverse kinematics, control systems, CAD modelling, circuit designing and more.
+Designing and implementing holonomic drive based robot and its control system using ROS2 and Python. Learning about holonomic drive, inverse kinematics, control systems, CAD modelling, circuit designing and more!
 
 ## About The Project
 In this project, we shall make glyphs on an 8ft x 8ft arena with an overhead camera to assist these 3 holonommic robots!
